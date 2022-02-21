@@ -5,15 +5,21 @@ import (
 	"math"
 )
 
-func hexPointCorner(center rl.Vector2, size float32, c float64) [5]rl.Vector2 {
-	var cornerIndex = []float64{0, 60, 120, 180, 240, 300}
-	var corners = [5]rl.Vector2{}
+type hexTile struct {
+	hexPoly rl.Mesh
+	center  rl.Vector2
+	corners [5]rl.Vector2
+}
 
-	for i, s := range cornerIndex {
-		corners[i] = rl.NewVector2(
-			float32(math.Cos(rl.Pi/180*(60*s))),
-			float32(math.Sin(rl.Pi/180*(60*s))))
+func hexPointCorner(center rl.Vector3, size float32) [5]rl.Vector3 {
+	var corners [5]rl.Vector3
+	for i := range corners {
+		angleDeg := 60.0 * float64(i)
+		angleRad := math.Pi / 180 * angleDeg
+		corners[i] = rl.NewVector3(
+			center.X+size*float32(math.Cos(angleRad)),
+			center.Y+size*float32(math.Sin(angleRad)),
+			0)
 	}
-
 	return corners
 }

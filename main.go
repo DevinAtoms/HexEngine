@@ -43,6 +43,8 @@ func main() {
 	layout := hex.MakeLayout(hexRad, screenOrigin, hex.OrientationPointy)
 	myFirstHex := hex.H{}                       // Uses axial coordinates.
 	screenPoint := layout.CenterFor(myFirstHex) // convert the hexagon center into screen coordinates.
+	screenPointVector3 := rl.NewVector3(float32(screenPoint.X), float32(screenPoint.Y), 0)
+	//screenPointVector2 := rl.NewVector2(float32(screenPoint.X), float32(screenPoint.Y))
 
 	cursor := mouseCursor{
 		floatrad: 4.0,
@@ -67,7 +69,17 @@ func main() {
 
 	rl.SetTargetFPS(60)
 
+	pointCorners := hexPointCorner(screenPointVector3, 4)
+
 	for !rl.WindowShouldClose() {
+
+		camera.Position.Y += float32(rl.GetMouseWheelMove()) * 0.05
+
+		if camera.Position.Y > 100.0 {
+			camera.Position.Y = 3.0
+		} else if camera.Position.Y < 0.1 {
+			camera.Position.Y = 0.1
+		}
 
 		rl.UpdateCamera(&camera)
 		rl.BeginDrawing()
@@ -84,8 +96,12 @@ func main() {
 		//rl.DrawRectangleRec(bottomRight, rl.Red)
 
 		rl.BeginMode3D(camera)
-		rl.DrawGrid(50, 1.0)
-		rl.DrawModel(rl.LoadModelFromMesh(rl.GenMeshPoly(6, 10)), rl.NewVector3(float32(screenPoint.X), float32(screenPoint.Y), 0), .25, rl.Green)
+		for _, d := range pointCorners[:] {
+			rl.DrawSphere(d, .1, rl.Black)
+			fmt.Println(string(int32(d.X)) + string(int32(d.Y)) + string(int32(d.Z)))
+		}
+		//rl.DrawGrid(50, 1.0)
+		//rl.DrawModel(rl.LoadModelFromMesh(rl.GenMeshPoly(6, 10)), screenPointVector3, .25, rl.Green)
 		rl.EndMode3D()
 
 		rl.DrawText("Camera X: "+fmt.Sprintf("%.2f", camera.Position.X), 10, 10, 20, rl.Gray)
