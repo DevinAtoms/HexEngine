@@ -1,6 +1,3 @@
-github.com/gen2brain/raylib-go/raygui v0.0.0-20220116181443-e4777d30ee99 h1:rRLVQOQu9N3hIhnsSCGSZhbAZOHpo4JIDCKOSeA3g0I=
-github.com/gen2brain/raylib-go/raygui v0.0.0-20220116181443-e4777d30ee99/go.mod h1:PdIDpFApFZazMjaf1mVuSgzTrMIdyC1e4vL98Euzgkw=
-github.com/gen2brain/raylib-go/raylib v0.0.0-20211111173445-914ca1ffdc4d/go.mod h1:+NbsqGlEQqGqrsgJFF5Yj2dkvn0ML2SQb8RqM2hJsPU=
 github.com/gen2brain/raylib-go/raylib v0.0.0-20220116181443-e4777d30ee99 h1:oIi/mobSw0P7bujBj8og1cAvHJw2vBbjcA8gJfUgfyA=
 github.com/gen2brain/raylib-go/raylib v0.0.0-20220116181443-e4777d30ee99/go.mod h1:+NbsqGlEQqGqrsgJFF5Yj2dkvn0ML2SQb8RqM2hJsPU=
 github.com/hautenessa/hexagolang v0.0.0-20201214080440-ac7a7d0cc858 h1:ZMPVSQxbWHdzYbQE1rApCxGv9BsVXA0Fci+hEVA+Pb8=
