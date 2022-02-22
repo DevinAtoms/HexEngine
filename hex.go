@@ -32,29 +32,16 @@ func hexToPixel(h hex, size float32) rl.Vector2 {
 	return point
 }
 
-func hexPointCorner3D(center rl.Vector3, size float32) [8]rl.Vector3 {
-	var corners [8]rl.Vector3
-	corners[7] = center
-	for i := range corners {
+func hexCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
+	var corners [7]rl.Vector3
+	points := corners[0:6]
+	for i := range points {
 		angleDeg := 60.0 * float64(i)
-		angleRad := rl.Deg2rad * angleDeg
+		angleRadCos := float32(math.Cos(rl.Deg2rad * angleDeg))
+		angleRadSin := float32(math.Sin(rl.Deg2rad * angleDeg))
 		corners[i] = rl.NewVector3(
-			center.X+size*float32(math.Cos(angleRad)), 0,
-			center.Y+size*float32(math.Sin(angleRad)))
-	}
-	return corners
-}
-
-func hexCorner3D(center rl.Vector3, size float32) [8]rl.Vector3 {
-	var corners [8]rl.Vector3
-	corners[7] = center
-	corners[0] = rl.Vector3Add(center, rl.NewVector3(size, 0, 0))
-	for i := range corners[1:6] {
-		angleDeg := 60.0 * float64(i)
-		angleRad := rl.Deg2rad * angleDeg
-		corners[i] = rl.NewVector3(
-			center.X+size*float32(math.Cos(angleRad)), 0,
-			center.Y+size*float32(math.Sin(angleRad)))
+			center.X+size*angleRadCos, center.Y+size*angleRadSin,
+			0)
 	}
 	return corners
 }
@@ -85,9 +72,23 @@ func Vector3to2(vector3 rl.Vector3) rl.Vector2 {
 	return rl.Vector2{X: X, Y: Y}
 }
 
-func drawHex3D(hex [8]rl.Vector3) {
-	for i := range hex[0:6] {
-		rl.DrawLine3D(hex[i], hex[i+1], rl.Black)
-		rl.DrawLine3D(hex[i], hex[7], rl.Red)
+func drawHex3D(hex [7]rl.Vector3) {
+	center := hex[6]
+	for i := range hex {
+		if i < 5 {
+			rl.DrawLine3D(hex[i], hex[i+1], rl.Black)
+			rl.DrawLine3D(hex[i], center, rl.Red)
+			rl.DrawText("test", int32(Vector3to2(hex[i]).X), int32(Vector3to2(hex[i]).Y), 8, rl.Black)
+		} else if i == 5 {
+			rl.DrawLine3D(hex[5], hex[0], rl.Black)
+			rl.DrawLine3D(hex[i], center, rl.Red)
+		}
 	}
+	//rl.DrawSphere(hex[0], .5, rl.Red)
+	//rl.DrawSphere(hex[1], .5, rl.Blue)
+	//rl.DrawSphere(hex[2], .5, rl.Green)
+	//rl.DrawSphere(hex[3], .5, rl.Yellow)
+	//rl.DrawSphere(hex[4], .5, rl.Orange)
+	//rl.DrawSphere(hex[5], .5, rl.Brown)
+	//rl.DrawSphere(center, .5, rl.White)
 }
