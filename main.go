@@ -5,18 +5,19 @@ import (
 	"github.com/gen2brain/raylib-go/raylib"
 )
 
-type mouseCursor struct {
-	floatrad float32
-	intrad   int32
-	color    rl.Color
-}
-
-type window struct {
-	N float32
-	S float32
-	E float32
-	W float32
-}
+type (
+	mouseCursor struct {
+		floatrad float32
+		intrad   int32
+		color    rl.Color
+	}
+	window struct {
+		N float32
+		S float32
+		E float32
+		W float32
+	}
+)
 
 const (
 	borderwidth  = int32(100)
@@ -25,39 +26,76 @@ const (
 	screenHeight = int32(900)
 )
 
-func main() {
-
-	//rl.SetConfigFlags(rl.FlagFullscreenMode)
-	rl.InitWindow(screenWidth, screenHeight, "Window")
-
-	screenPointVector3 := rl.NewVector3(0, 0, 0)
-	screenPointVector2 := rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
-	points3D := hexPointCorner3D(screenPointVector3, 10)
-	corners3D := points3D[:]
-	points2D := hexPointCorner2D(screenPointVector2, 100)
-	corners2D := points2D[:]
-
-	cursor := mouseCursor{
+var (
+	screenPointVector3, screenPointVector2 = rl.NewVector3(0, 0, 0), rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
+	points3D, corners3D                    = hexPointCorner3D(screenPointVector3, 10), points3D[:]
+	points2D, corners2D                    = hexPointCorner2D(screenPointVector2, 100), points2D[:]
+	cursor                                 = mouseCursor{
 		floatrad: 4.0,
 		intrad:   4.0,
 		color:    rl.Black,
 	}
-	screen := window{
+	screen = window{
 		N: 0,
 		W: 0,
 		S: float32(screenHeight),
 		E: float32(screenWidth),
 	}
+	top = rl.Rectangle{X: screen.W + float32(borderwidth),
+		Y:      screen.N,
+		Width:  screen.E - (float32(borderwidth) * 2),
+		Height: float32(borderwidth)}
+	bottom = rl.Rectangle{
+		X:      screen.W + float32(borderwidth),
+		Y:      screen.S - float32(borderwidth),
+		Width:  screen.E - (float32(borderwidth) * 2),
+		Height: float32(borderwidth),
+	}
+	left = rl.Rectangle{
+		X:      screen.W,
+		Y:      screen.N + float32(borderwidth),
+		Width:  float32(borderwidth),
+		Height: screen.S - (float32(borderwidth) * 2),
+	}
+	right = rl.Rectangle{
+		X:      screen.E - float32(borderwidth),
+		Y:      screen.N + float32(borderwidth),
+		Width:  float32(borderwidth),
+		Height: screen.S - (float32(borderwidth) * 2),
+	}
+	topLeft = rl.Rectangle{
+		X:      screen.N,
+		Y:      screen.N,
+		Width:  float32(borderwidth),
+		Height: float32(borderwidth),
+	}
+	topRight = rl.Rectangle{
+		X:      screen.E - float32(borderwidth),
+		Y:      screen.N,
+		Width:  float32(borderwidth),
+		Height: float32(borderwidth),
+	}
+	bottomLeft = rl.Rectangle{
+		X:      screen.W,
+		Y:      screen.S - float32(borderwidth),
+		Width:  float32(borderwidth),
+		Height: float32(borderwidth),
+	}
+	bottomRight = rl.Rectangle{
+		X:      screen.E - float32(borderwidth),
+		Y:      screen.S - float32(borderwidth),
+		Width:  float32(borderwidth),
+		Height: float32(borderwidth),
+	}
+)
 
-	top := rl.Rectangle{X: screen.W + float32(borderwidth), Y: screen.N, Width: screen.E - (float32(borderwidth) * 2), Height: float32(borderwidth)}
-	bottom := rl.Rectangle{X: screen.W + float32(borderwidth), Y: screen.S - float32(borderwidth), Width: screen.E - (float32(borderwidth) * 2), Height: float32(borderwidth)}
-	left := rl.Rectangle{X: screen.W, Y: screen.N + float32(borderwidth), Width: float32(borderwidth), Height: screen.S - (float32(borderwidth) * 2)}
-	right := rl.Rectangle{X: screen.E - float32(borderwidth), Y: screen.N + float32(borderwidth), Width: float32(borderwidth), Height: screen.S - (float32(borderwidth) * 2)}
-	topLeft := rl.Rectangle{X: screen.N, Y: screen.N, Width: float32(borderwidth), Height: float32(borderwidth)}
-	topRight := rl.Rectangle{X: screen.E - float32(borderwidth), Y: screen.N, Width: float32(borderwidth), Height: float32(borderwidth)}
-	bottomLeft := rl.Rectangle{X: screen.W, Y: screen.S - float32(borderwidth), Width: float32(borderwidth), Height: float32(borderwidth)}
-	bottomRight := rl.Rectangle{X: screen.E - float32(borderwidth), Y: screen.S - float32(borderwidth), Width: float32(borderwidth), Height: float32(borderwidth)}
+func Init() {
+	rl.InitWindow(screenWidth, screenHeight, "Window")
+	rl.SetTargetFPS(60)
+}
 
+func main() {
+	Init()
 	camera := rl.Camera{
 		Position:   rl.NewVector3(0.0, 100.0, 1.0),
 		Target:     rl.NewVector3(0.0, 0.0, 0.0),
@@ -65,8 +103,6 @@ func main() {
 		Fovy:       75,
 		Projection: rl.CameraOrthographic,
 	}
-	rl.SetTargetFPS(60)
-
 	for !rl.WindowShouldClose() {
 
 		rl.UpdateCamera(&camera)
