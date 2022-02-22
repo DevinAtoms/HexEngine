@@ -5,21 +5,37 @@ import (
 	"math"
 )
 
-type hexTile struct {
-	hexPoly rl.Mesh
-	center  rl.Vector2
-	corners [5]rl.Vector2
+type hexDim func(int32, int32) int32
+type hexCoord func(int32, int32) float32
+type hexPoints func(rl.Vector3, float32) [7]rl.Vector3
+
+type hex struct {
+	width  hexDim
+	height hexDim
+	points hexPoints
 }
 
-func hexPointCorner(center rl.Vector3, size float32) [5]rl.Vector3 {
-	var corners [5]rl.Vector3
+func hexPointCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
+	var corners [7]rl.Vector3
 	for i := range corners {
 		angleDeg := 60.0 * float64(i)
 		angleRad := math.Pi / 180 * angleDeg
 		corners[i] = rl.NewVector3(
-			center.X+size*float32(math.Cos(angleRad)),
-			center.Y+size*float32(math.Sin(angleRad)),
-			0)
+			center.X+size*float32(math.Cos(angleRad)), 0,
+			center.Y+size*float32(math.Sin(angleRad)))
 	}
+	return corners
+}
+
+func hexPointCorner2D(center rl.Vector2, size float32) [7]rl.Vector2 {
+	var corners [7]rl.Vector2
+	for i := range corners {
+		angleDeg := 60.0 * float64(i)
+		angleRad := math.Pi / 180 * angleDeg
+		corners[i] = rl.NewVector2(
+			center.X+size*float32(math.Cos(angleRad)),
+			center.Y+size*float32(math.Sin(angleRad)))
+	}
+	corners[6] = corners[0]
 	return corners
 }

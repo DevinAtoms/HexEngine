@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/gen2brain/raylib-go/raylib"
-	hex "github.com/hautenessa/hexagolang"
 )
 
 type mouseCursor struct {
@@ -27,24 +26,16 @@ const (
 )
 
 func main() {
+
 	//rl.SetConfigFlags(rl.FlagFullscreenMode)
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 
-	camera := rl.Camera{
-		Position:   rl.NewVector3(0.0, 100.0, 1.0),
-		Target:     rl.NewVector3(0.0, 0.0, 0.0),
-		Up:         rl.NewVector3(0.0, 1.0, 0.0),
-		Fovy:       75,
-		Projection: rl.CameraOrthographic,
-	}
-
-	screenOrigin := hex.F{X: 0, Y: 0}
-	hexRad := hex.F{X: 1, Y: 1}
-	layout := hex.MakeLayout(hexRad, screenOrigin, hex.OrientationPointy)
-	myFirstHex := hex.H{}                       // Uses axial coordinates.
-	screenPoint := layout.CenterFor(myFirstHex) // convert the hexagon center into screen coordinates.
-	screenPointVector3 := rl.NewVector3(float32(screenPoint.X), float32(screenPoint.Y), 0)
-	//screenPointVector2 := rl.NewVector2(float32(screenPoint.X), float32(screenPoint.Y))
+	screenPointVector3 := rl.NewVector3(0, 0, 0)
+	screenPointVector2 := rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
+	points3D := hexPointCorner3D(screenPointVector3, 10)
+	corners3D := points3D[:]
+	points2D := hexPointCorner2D(screenPointVector2, 100)
+	corners2D := points2D[:]
 
 	cursor := mouseCursor{
 		floatrad: 4.0,
@@ -67,40 +58,29 @@ func main() {
 	bottomLeft := rl.Rectangle{X: screen.W, Y: screen.S - float32(borderwidth), Width: float32(borderwidth), Height: float32(borderwidth)}
 	bottomRight := rl.Rectangle{X: screen.E - float32(borderwidth), Y: screen.S - float32(borderwidth), Width: float32(borderwidth), Height: float32(borderwidth)}
 
+	camera := rl.Camera{
+		Position:   rl.NewVector3(0.0, 100.0, 1.0),
+		Target:     rl.NewVector3(0.0, 0.0, 0.0),
+		Up:         rl.NewVector3(0.0, 1.0, 0.0),
+		Fovy:       75,
+		Projection: rl.CameraOrthographic,
+	}
 	rl.SetTargetFPS(60)
 
-	pointCorners := hexPointCorner(screenPointVector3, 4)
-
 	for !rl.WindowShouldClose() {
-
-		camera.Position.Y += float32(rl.GetMouseWheelMove()) * 0.05
-
-		if camera.Position.Y > 100.0 {
-			camera.Position.Y = 3.0
-		} else if camera.Position.Y < 0.1 {
-			camera.Position.Y = 0.1
-		}
 
 		rl.UpdateCamera(&camera)
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
-
-		// Debug Borders
-		//rl.DrawRectangleRec(top, rl.Yellow)
-		//rl.DrawRectangleRec(left, rl.Green)
-		//rl.DrawRectangleRec(right, rl.Blue)
-		//rl.DrawRectangleRec(bottom, rl.Orange)
-		//rl.DrawRectangleRec(topLeft, rl.Red)
-		//rl.DrawRectangleRec(topRight, rl.Red)
-		//rl.DrawRectangleRec(bottomLeft, rl.Red)
-		//rl.DrawRectangleRec(bottomRight, rl.Red)
-
 		rl.BeginMode3D(camera)
-		for _, d := range pointCorners[:] {
-			rl.DrawSphere(d, .1, rl.Black)
-			fmt.Println(string(int32(d.X)) + string(int32(d.Y)) + string(int32(d.Z)))
+		for i := range corners3D {
+			if i < 6 {
+				rl.DrawLine3D(corners3D[i], corners3D[i+1], rl.Black)
+			} else {
+				rl.DrawLine3D(corners3D[6], corners3D[0], rl.Black)
+			}
 		}
-		//rl.DrawGrid(50, 1.0)
+
 		//rl.DrawModel(rl.LoadModelFromMesh(rl.GenMeshPoly(6, 10)), screenPointVector3, .25, rl.Green)
 		rl.EndMode3D()
 
@@ -110,6 +90,7 @@ func main() {
 		rl.DrawText("Mouse X: "+fmt.Sprintf("%d", rl.GetMouseX()), 10, 70, 20, rl.Gray)
 		rl.DrawText("Mouse Y: "+fmt.Sprintf("%d", rl.GetMouseY()), 10, 90, 20, rl.Gray)
 		rl.DrawText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), int32(screen.E)-5-rl.MeasureText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), 20), 10, 20, rl.Gray)
+		rl.DrawLineStrip(corners2D, int32(len(corners2D)), rl.NewColor(0, 0, 0, 0))
 		rl.DrawCircleV(rl.GetMousePosition(), cursor.floatrad, cursor.color)
 		rl.EndDrawing()
 		rl.DisableCursor()
