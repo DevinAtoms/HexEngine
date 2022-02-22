@@ -28,7 +28,7 @@ const (
 
 var (
 	screenPointVector3, screenPointVector2 = rl.NewVector3(0, 0, 0), rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
-	points3D, corners3D                    = hexPointCorner3D(screenPointVector3, 10), points3D[:]
+	points3D                               = hexPointCorner3D(screenPointVector3, 10)
 	points2D, corners2D                    = hexPointCorner2D(screenPointVector2, 100), points2D[:]
 	cursor                                 = mouseCursor{
 		floatrad: 4.0,
@@ -89,37 +89,31 @@ var (
 	}
 )
 
-func Init() {
+func Init() rl.Camera {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 	rl.SetTargetFPS(60)
+	camera := rl.Camera{
+		Position: rl.NewVector3(0.0, 100, 1.0),
+		Target:   rl.NewVector3(0.0, 0.0, 0.0),
+		Up:       rl.NewVector3(0.0, 1.0, 0.0),
+		Fovy:     75,
+	}
+	return camera
 }
 
 func main() {
-	Init()
-	camera := rl.Camera{
-		Position:   rl.NewVector3(0.0, 100.0, 1.0),
-		Target:     rl.NewVector3(0.0, 0.0, 0.0),
-		Up:         rl.NewVector3(0.0, 1.0, 0.0),
-		Fovy:       75,
-		Projection: rl.CameraOrthographic,
-	}
+	camera := Init()
+	//rl.SetCameraMode(camera, rl.CameraFree)
 	for !rl.WindowShouldClose() {
 
 		rl.UpdateCamera(&camera)
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 		rl.BeginMode3D(camera)
-		for i := range corners3D {
-			if i < 6 {
-				rl.DrawLine3D(corners3D[i], corners3D[i+1], rl.Black)
-			} else {
-				rl.DrawLine3D(corners3D[6], corners3D[0], rl.Black)
-			}
-		}
+		drawHex3D(points3D)
 
 		//rl.DrawModel(rl.LoadModelFromMesh(rl.GenMeshPoly(6, 10)), screenPointVector3, .25, rl.Green)
 		rl.EndMode3D()
-
 		rl.DrawText("Camera X: "+fmt.Sprintf("%.2f", camera.Position.X), 10, 10, 20, rl.Gray)
 		rl.DrawText("Camera Y: "+fmt.Sprintf("%.2f", camera.Position.Y), 10, 30, 20, rl.Gray)
 		rl.DrawText("Camera Z: "+fmt.Sprintf("%.2f", camera.Position.Z), 10, 50, 20, rl.Gray)
@@ -128,8 +122,8 @@ func main() {
 		rl.DrawText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), int32(screen.E)-5-rl.MeasureText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), 20), 10, 20, rl.Gray)
 		rl.DrawLineStrip(corners2D, int32(len(corners2D)), rl.NewColor(0, 0, 0, 0))
 		rl.DrawCircleV(rl.GetMousePosition(), cursor.floatrad, cursor.color)
-		rl.EndDrawing()
 		rl.DisableCursor()
+		rl.EndDrawing()
 
 		if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {
 			rl.SetMousePosition(rl.GetScreenWidth()-int(cursor.intrad), int(rl.GetMouseY()))
