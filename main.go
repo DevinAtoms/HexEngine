@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -26,12 +27,14 @@ const (
 )
 
 var (
-	screenPointVector3, screenPointVector2 = rl.NewVector3(0, 0, 0), rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
-	points3D                               = hexCorner3D(screenPointVector3, 10)
-	points2D, corners2D                    = hexPointCorner2D(screenPointVector2, 100), points2D[:]
-	cursor                                 = mouseCursor{
-		floatrad: 4.0,
-		intrad:   4.0,
+	screenPointVector3 = rl.NewVector3(0, 0, 0)
+	points3D           = hexCorner3D(screenPointVector3, 10)
+	//screenPointVector2 = rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
+	//points2D = hexPointCorner2D(screenPointVector2, 100)
+	//corners2D = points2D[:]
+	cursor = mouseCursor{
+		floatrad: 3.0,
+		intrad:   3.0,
 		color:    rl.Black,
 	}
 	screen = window{
@@ -63,7 +66,7 @@ var (
 		Height: screen.S - (float32(borderwidth) * 2),
 	}
 	topLeft = rl.Rectangle{
-		X:      screen.N,
+		X:      screen.W,
 		Y:      screen.N,
 		Width:  float32(borderwidth),
 		Height: float32(borderwidth),
@@ -86,90 +89,53 @@ var (
 		Width:  float32(borderwidth),
 		Height: float32(borderwidth),
 	}
+	camera = rl.Camera{
+		Position: rl.NewVector3(0.0, -50.0, -25.0),
+		Target:   rl.NewVector3(0.0, 0.0, 0.0),
+		Up:       rl.NewVector3(0.0, 0.0, 1.0),
+		Fovy:     75}
 )
 
-func Init() rl.Camera {
-	var camera = rl.Camera{}
+func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 	rl.SetTargetFPS(60)
 
-	camera = rl.Camera{
-		Position: rl.NewVector3(0.0, 0.0, 0.0),
-		Target:   rl.NewVector3(0.0, 0.0, 0.0),
-		Up:       rl.NewVector3(0.0, 0.0, 0.0),
-		Fovy:     75}
+	hexMesh := rl.GenMeshPoly(6, 10)
+	hexModel := rl.LoadModelFromMesh(hexMesh)
 
-	return camera
-}
-
-func main() {
-	camera := Init()
-	rl.SetCameraMode(camera, rl.CameraCustom)
-	rl.SetCameraPanControl(5)
 	for !rl.WindowShouldClose() {
+		cameraControl(&camera)
 
-		rl.UpdateCamera(&camera)
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 		rl.BeginMode3D(camera)
-		rl.DrawSphere(rl.NewVector3(10, 10, 0), 1, rl.Black)
-		drawHex3D(points3D)
-
-		//rl.DrawModel(rl.LoadModelFromMesh(rl.GenMeshPoly(6, 10)), screenPointVector3, .25, rl.Green)
-
-		//rl.DrawText("Camera X: "+fmt.Sprintf("%.2f", camera.Position.X), 10, 10, 20, rl.Gray)
-		//rl.DrawText("Camera Y: "+fmt.Sprintf("%.2f", camera.Position.Y), 10, 30, 20, rl.Gray)
-		//rl.DrawText("Camera Z: "+fmt.Sprintf("%.2f", camera.Position.Z), 10, 50, 20, rl.Gray)
-		//rl.DrawText("Mouse X: "+fmt.Sprintf("%d", rl.GetMouseX()), 10, 70, 20, rl.Gray)
-		//rl.DrawText("Mouse Y: "+fmt.Sprintf("%d", rl.GetMouseY()), 10, 90, 20, rl.Gray)
-		//rl.DrawText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), int32(screen.E)-5-rl.MeasureText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), 20), 10, 20, rl.Gray)
-		//rl.DrawLineStrip(corners2D, int32(len(corners2D)), rl.NewColor(0, 0, 0, 0))
-		//	rl.DrawCircleV(rl.GetMousePosition(), cursor.floatrad, cursor.color)
-		//	rl.DisableCursor()
+		//drawHex3D(points3D)
+		rl.DrawGrid(10, 10)
+		rl.DrawModelWires(hexModel, rl.NewVector3(2, -2, -5), 2, rl.Green)
 		rl.EndMode3D()
+		debugText(&camera)
+		rl.DrawPoly(rl.NewVector2(float32(rl.GetMouseX())-3, float32(rl.GetMouseY())), 2, cursor.floatrad, 135, cursor.color)
 		rl.EndDrawing()
+		rl.DisableCursor()
 
-		//	if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {
-		//		rl.SetMousePosition(rl.GetScreenWidth()-int(cursor.intrad), int(rl.GetMouseY()))
-		//	} else if rl.GetMouseX()-cursor.intrad <= 0 {
-		//		rl.SetMousePosition(0+int(cursor.intrad), int(rl.GetMouseY()))
-		//	}
-		//
-		//	if rl.GetMouseY()+cursor.intrad > int32(rl.GetScreenHeight()) {
-		//		rl.SetMousePosition(int(rl.GetMouseX()), rl.GetScreenHeight()-int(cursor.intrad))
-		//	} else if rl.GetMouseY()-cursor.intrad < 0 {
-		//		rl.SetMousePosition(int(rl.GetMouseX()), 0+int(cursor.intrad))
-		//	}
-		//
-		//	if rl.CheckCollisionPointRec(rl.GetMousePosition(), right) {
-		//		camera.Position.X += panSpeed
-		//		camera.Target.X += panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), left) {
-		//		camera.Position.X -= panSpeed
-		//		camera.Target.X -= panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), bottom) {
-		//		camera.Target.Y -= panSpeed
-		//		camera.Position.Y -= panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), top) {
-		//		camera.Target.Y += panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), bottomRight) {
-		//		camera.Position.X += panSpeed
-		//		camera.Target.X += panSpeed
-		//		camera.Target.Y -= panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), topLeft) {
-		//		camera.Position.X -= panSpeed
-		//		camera.Target.X -= panSpeed
-		//		camera.Target.Y += panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), topRight) {
-		//		camera.Position.X += panSpeed
-		//		camera.Target.X += panSpeed
-		//		camera.Target.Y += panSpeed
-		//	} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), bottomLeft) {
-		//		camera.Position.X -= panSpeed
-		//		camera.Target.X -= panSpeed
-		//		camera.Target.Y -= panSpeed
-		//	}
+		if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {
+			rl.SetMousePosition(rl.GetScreenWidth()-int(cursor.intrad), int(rl.GetMouseY()))
+		} else if rl.GetMouseX()-cursor.intrad <= 0 {
+			rl.SetMousePosition(0+int(cursor.intrad), int(rl.GetMouseY()))
+		}
+		if rl.GetMouseY()+cursor.intrad > int32(rl.GetScreenHeight()) {
+			rl.SetMousePosition(int(rl.GetMouseX()), rl.GetScreenHeight()-int(cursor.intrad))
+		} else if rl.GetMouseY()-cursor.intrad < 0 {
+			rl.SetMousePosition(int(rl.GetMouseX()), 0+int(cursor.intrad))
+		}
+
 	}
-
 	rl.CloseWindow()
+}
+
+func debugText(camera *rl.Camera) {
+	rl.DrawText("Pos X: "+fmt.Sprintf("%.2f", camera.Position.X)+", Y: "+fmt.Sprintf("%.2f", camera.Position.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Position.Z), 10, 10, 20, rl.Gray)
+	rl.DrawText("Target X: "+fmt.Sprintf("%.2f", camera.Target.X)+", Y: "+fmt.Sprintf("%.2f", camera.Target.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Target.Z), 10, 30, 20, rl.Gray)
+	rl.DrawText("Up X: "+fmt.Sprintf("%.2f", camera.Up.X)+", Y: "+fmt.Sprintf("%.2f", camera.Up.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Up.Z), 10, 50, 20, rl.Gray)
+	rl.DrawText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), int32(screen.E)-5-rl.MeasureText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), 20), 10, 20, rl.Gray)
 }

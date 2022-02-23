@@ -74,11 +74,11 @@ func Vector3to2(vector3 rl.Vector3) rl.Vector2 {
 
 func drawHex3D(hex [7]rl.Vector3) {
 	center := hex[6]
+
 	for i := range hex {
 		if i < 5 {
 			rl.DrawLine3D(hex[i], hex[i+1], rl.Black)
 			rl.DrawLine3D(hex[i], center, rl.Red)
-			rl.DrawText("test", int32(Vector3to2(hex[i]).X), int32(Vector3to2(hex[i]).Y), 8, rl.Black)
 		} else if i == 5 {
 			rl.DrawLine3D(hex[5], hex[0], rl.Black)
 			rl.DrawLine3D(hex[i], center, rl.Red)
