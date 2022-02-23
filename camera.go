@@ -13,12 +13,12 @@ func cameraControl(camera *rl.Camera) {
 			camera.Position.Y -= panSpeed
 		}
 		if rl.IsKeyDown(rl.KeyW) || panN() {
-			camera.Target.Z += panSpeed
-			camera.Position.Z += panSpeed
-		}
-		if rl.IsKeyDown(rl.KeyS) || panS() {
 			camera.Target.Z -= panSpeed
 			camera.Position.Z -= panSpeed
+		}
+		if rl.IsKeyDown(rl.KeyS) || panS() {
+			camera.Target.Z += panSpeed
+			camera.Position.Z += panSpeed
 		}
 		if rl.IsKeyDown(rl.KeyD) || panE() {
 			camera.Target.X += panSpeed
@@ -30,26 +30,26 @@ func cameraControl(camera *rl.Camera) {
 		}
 	}
 	if panNE() {
-		camera.Target.Z += panSpeed
-		camera.Position.Z += panSpeed
+		camera.Target.Z -= panSpeed
+		camera.Position.Z -= panSpeed
 		camera.Target.X += panSpeed
 		camera.Position.X += panSpeed
 	}
 	if panSE() {
-		camera.Target.Z -= panSpeed
-		camera.Position.Z -= panSpeed
+		camera.Target.Z += panSpeed
+		camera.Position.Z += panSpeed
 		camera.Target.X += panSpeed
 		camera.Position.X += panSpeed
 	}
 	if panNW() {
-		camera.Target.Z += panSpeed
-		camera.Position.Z += panSpeed
+		camera.Target.Z -= panSpeed
+		camera.Position.Z -= panSpeed
 		camera.Target.X -= panSpeed
 		camera.Position.X -= panSpeed
 	}
 	if panSW() {
-		camera.Target.Z -= panSpeed
-		camera.Position.Z -= panSpeed
+		camera.Target.Z += panSpeed
+		camera.Position.Z += panSpeed
 		camera.Target.X -= panSpeed
 		camera.Position.X -= panSpeed
 	}

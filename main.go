@@ -90,9 +90,9 @@ var (
 		Height: float32(borderwidth),
 	}
 	camera = rl.Camera{
-		Position: rl.NewVector3(0.0, -50.0, -25.0),
+		Position: rl.NewVector3(0.0, 50.0, 25.0),
 		Target:   rl.NewVector3(0.0, 0.0, 0.0),
-		Up:       rl.NewVector3(0.0, 0.0, 1.0),
+		Up:       rl.NewVector3(0.0, 0.0, -1.0),
 		Fovy:     75}
 )
 
@@ -100,8 +100,7 @@ func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 	rl.SetTargetFPS(60)
 
-	hexMesh := rl.GenMeshPoly(6, 10)
-	hexModel := rl.LoadModelFromMesh(hexMesh)
+	hexTile := loadHexObj()
 
 	for !rl.WindowShouldClose() {
 		cameraControl(&camera)
@@ -109,9 +108,9 @@ func main() {
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 		rl.BeginMode3D(camera)
-		//drawHex3D(points3D)
+		rl.DrawModel(hexTile.model, rl.Vector3Zero(), 10, rl.White)
 		rl.DrawGrid(10, 10)
-		rl.DrawModelWires(hexModel, rl.NewVector3(2, -2, -5), 2, rl.Green)
+
 		rl.EndMode3D()
 		debugText(&camera)
 		rl.DrawPoly(rl.NewVector2(float32(rl.GetMouseX())-3, float32(rl.GetMouseY())), 2, cursor.floatrad, 135, cursor.color)
@@ -130,6 +129,7 @@ func main() {
 		}
 
 	}
+	unloadHexObj(hexTile.model, hexTile.texture)
 	rl.CloseWindow()
 }
 
