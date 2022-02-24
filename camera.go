@@ -1,57 +1,90 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	"math"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+var verticalAngle float64
+var horizontalAngle float64
+var distance = float64(rl.Vector3Distance(camera.Position, camera.Target))
+var horizontalDistance = distance * math.Cos(verticalAngle*rl.Deg2rad)
 
 func cameraControl(camera *rl.Camera) {
 	if !panNE() && !panNW() && !panSE() && !panSW() {
-		if rl.IsKeyDown(rl.KeyUp) {
-			camera.Target.Y += panSpeed
-			camera.Position.Y += panSpeed
+
+		camera.Position.Y -= float32(rl.GetMouseWheelMove() * 2)
+		camera.Target.Y -= float32(rl.GetMouseWheelMove() * 2)
+
+		if rl.IsKeyDown(rl.KeySpace) {
+			rl.Vector3Transform(camera.Position, rl.MatrixRotate(camera.Position, 45))
+			rl.DrawSphere(rl.Vector3Zero(), 1, rl.Black)
 		}
-		if rl.IsKeyDown(rl.KeyDown) {
-			camera.Target.Y -= panSpeed
-			camera.Position.Y -= panSpeed
-		}
+
 		if rl.IsKeyDown(rl.KeyW) || panN() {
-			camera.Target.Z -= panSpeed
-			camera.Position.Z -= panSpeed
-		}
-		if rl.IsKeyDown(rl.KeyS) || panS() {
 			camera.Target.Z += panSpeed
 			camera.Position.Z += panSpeed
 		}
-		if rl.IsKeyDown(rl.KeyD) || panE() {
-			camera.Target.X += panSpeed
-			camera.Position.X += panSpeed
+		if rl.IsKeyDown(rl.KeyS) || panS() {
+			camera.Target.Z -= panSpeed
+			camera.Position.Z -= panSpeed
 		}
-		if rl.IsKeyDown(rl.KeyA) || panW() {
+		if rl.IsKeyDown(rl.KeyD) || panE() {
 			camera.Target.X -= panSpeed
 			camera.Position.X -= panSpeed
 		}
+		if rl.IsKeyDown(rl.KeyA) || panW() {
+			camera.Target.X += panSpeed
+			camera.Position.X += panSpeed
+		}
+	}
+	if rl.IsKeyDown(rl.KeyUp) || panN() && verticalAngle < 88.0 {
+		camera.Position.X = float32(horizontalDistance * math.Cos(horizontalAngle*rl.Deg2rad))
+		camera.Position.Z = float32(horizontalDistance * math.Sin(horizontalAngle*rl.Deg2rad))
+		camera.Position.Y = float32(distance * math.Sin(verticalAngle*rl.Deg2rad))
+		verticalAngle += 1.0
+	}
+	if rl.IsKeyDown(rl.KeyDown) || panS() && verticalAngle > 2.0 {
+		camera.Position.X = float32(horizontalDistance * math.Cos(horizontalAngle*rl.Deg2rad))
+		camera.Position.Z = float32(horizontalDistance * math.Sin(horizontalAngle*rl.Deg2rad))
+		camera.Position.Y = float32(distance * math.Sin(verticalAngle*rl.Deg2rad))
+		verticalAngle -= 1.0
+	}
+	if rl.IsKeyDown(rl.KeyRight) || panE() {
+
+		camera.Position.X = float32(horizontalDistance * math.Cos(horizontalAngle*rl.Deg2rad))
+		camera.Position.Z = float32(horizontalDistance * math.Sin(horizontalAngle*rl.Deg2rad))
+		horizontalAngle += 1.0
+	}
+	if rl.IsKeyDown(rl.KeyLeft) || panW() {
+		camera.Position.X = float32(horizontalDistance * math.Cos(horizontalAngle*rl.Deg2rad))
+		camera.Position.Z = float32(horizontalDistance * math.Sin(horizontalAngle*rl.Deg2rad))
+		horizontalAngle -= 1.0
 	}
 	if panNE() {
-		camera.Target.Z -= panSpeed
-		camera.Position.Z -= panSpeed
-		camera.Target.X += panSpeed
-		camera.Position.X += panSpeed
+		camera.Target.Z += panSpeed
+		camera.Position.Z += panSpeed
+		camera.Target.X -= panSpeed
+		camera.Position.X -= panSpeed
 	}
 	if panSE() {
-		camera.Target.Z += panSpeed
-		camera.Position.Z += panSpeed
-		camera.Target.X += panSpeed
-		camera.Position.X += panSpeed
-	}
-	if panNW() {
 		camera.Target.Z -= panSpeed
 		camera.Position.Z -= panSpeed
 		camera.Target.X -= panSpeed
 		camera.Position.X -= panSpeed
 	}
-	if panSW() {
+	if panNW() {
 		camera.Target.Z += panSpeed
 		camera.Position.Z += panSpeed
-		camera.Target.X -= panSpeed
-		camera.Position.X -= panSpeed
+		camera.Target.X += panSpeed
+		camera.Position.X += panSpeed
+	}
+	if panSW() {
+		camera.Target.Z -= panSpeed
+		camera.Position.Z -= panSpeed
+		camera.Target.X += panSpeed
+		camera.Position.X += panSpeed
 	}
 }
 

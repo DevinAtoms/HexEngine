@@ -30,10 +30,10 @@ func drawHex3D(hex [7]rl.Vector3) {
 	for i := range hex {
 		if i < 5 {
 			rl.DrawLine3D(hex[i], hex[i+1], rl.Black)
-			rl.DrawLine3D(hex[i], center, rl.Red)
+			rl.DrawLine3D(hex[i], center, rl.Black)
 		} else if i == 5 {
 			rl.DrawLine3D(hex[5], hex[0], rl.Black)
-			rl.DrawLine3D(hex[i], center, rl.Red)
+			rl.DrawLine3D(hex[i], center, rl.Black)
 		}
 	}
 	//rl.DrawSphere(hex[0], .5, rl.Red)
