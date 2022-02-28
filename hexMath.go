@@ -6,8 +6,8 @@ import (
 	"github.com/gen2brain/raylib-go/raylib"
 )
 
-const apothem = 0.433
-const hexRad = .5
+const apothem = 0.5
+const hexRad = .5774
 
 type hexTile struct {
 	model  rl.Model
@@ -24,7 +24,7 @@ type hexCoord struct {
 
 func loadHex() *hexTile {
 	tile := hexTile{
-		model:  rl.LoadModel("assets/newhex.obj"),
+		model:  rl.LoadModel("assets/grass.obj"),
 		hexMat: rl.Matrix{},
 	}
 	return &tile
@@ -46,7 +46,7 @@ func hexCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
 
 func drawOriginHex() {
 	tile := originHex
-	tile.points = hexCorner3D(rl.Vector3Zero(), 0.5)
+	tile.points = hexCorner3D(rl.Vector3Zero(), hexRad)
 	rl.DrawModelEx(tile.model, rl.Vector3Zero(), rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
 }
 
@@ -90,7 +90,7 @@ func wireframe(tile *hexTile) {
 
 func drawHex(loc rl.Vector3) {
 	tile := originHex
-	tile.points = hexCorner3D(loc, 0.5)
+	tile.points = hexCorner3D(loc, hexRad)
 	wireframe(tile)
 	rl.DrawModelEx(tile.model, loc, rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
 }
@@ -98,17 +98,9 @@ func drawHex(loc rl.Vector3) {
 func hexCoords(coord rl.Vector3) rl.Vector3 {
 
 	dist := float32(math.Sqrt(3) * apothem)
-	//placeholder
-	coords := rl.Vector3One()
-	//cubeQ := apothem*2
-	//cubeR :=
-
-	//gridQ := coord.X
-	//gridR := coord.Y
-	//gridS := coord.Z
 
 	// Q, -R, +S
-	rl.NewVector3(apothem, 0, dist)
+	coords := rl.NewVector3(apothem, 0, dist)
 	// Q, +R, -S
 	rl.NewVector3(-apothem, 0, -dist)
 
