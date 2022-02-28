@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"github.com/gen2brain/raylib-go/raylib"
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"math"
 )
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/gen2brain/raylib-go/raylib"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type (
@@ -44,8 +44,7 @@ var (
 )
 
 func main() {
-	rl.SetConfigFlags(rl.FlagFullscreenMode)
-	rl.InitWindow(int32(rl.GetMonitorWidth(1)), int32(rl.GetMonitorHeight(1)), "Window")
+	rl.InitWindow(screenWidth, screenHeight, "Window")
 	rl.SetTargetFPS(60)
 	rotateCamera(&camera, false)
 

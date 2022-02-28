@@ -1,4 +1,4 @@
-module main
+module HexEngine-Go
 
 go 1.17
 
