@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/gen2brain/raylib-go/raylib"
 )
@@ -23,136 +22,95 @@ type (
 
 const (
 	borderwidth  = int32(100)
-	panSpeed     = .75
+	panSpeed     = .1
 	screenWidth  = int32(1600)
 	screenHeight = int32(900)
 )
 
 var (
-	screenPointVector3 = rl.NewVector3(0, 0, 0)
-	points3D           = hexCorner3D(screenPointVector3, 10)
-	//screenPointVector2 = rl.NewVector2(float32(screenWidth/2), float32(screenHeight/2))
-	//points2D = hexPointCorner2D(screenPointVector2, 100)
-	//corners2D = points2D[:]
-	cursor = mouseCursor{
+	originHex *hexTile
+	cursor    = mouseCursor{
 		floatrad: 3.0,
 		intrad:   3.0,
 		color:    rl.Black,
-	}
-	screen = window{
-		N: 0,
-		W: 0,
-		S: float32(screenHeight),
-		E: float32(screenWidth),
-	}
-	top = rl.Rectangle{
-		X:      screen.W + float32(borderwidth),
-		Y:      screen.N,
-		Width:  screen.E - (float32(borderwidth) * 2),
-		Height: float32(borderwidth),
-	}
-	bottom = rl.Rectangle{
-		X:      screen.W + float32(borderwidth),
-		Y:      screen.S - float32(borderwidth),
-		Width:  screen.E - (float32(borderwidth) * 2),
-		Height: float32(borderwidth),
-	}
-	left = rl.Rectangle{
-		X:      screen.W,
-		Y:      screen.N + float32(borderwidth),
-		Width:  float32(borderwidth),
-		Height: screen.S - (float32(borderwidth) * 2),
-	}
-	right = rl.Rectangle{
-		X:      screen.E - float32(borderwidth),
-		Y:      screen.N + float32(borderwidth),
-		Width:  float32(borderwidth),
-		Height: screen.S - (float32(borderwidth) * 2),
-	}
-	topLeft = rl.Rectangle{
-		X:      screen.W,
-		Y:      screen.N,
-		Width:  float32(borderwidth),
-		Height: float32(borderwidth),
-	}
-	topRight = rl.Rectangle{
-		X:      screen.E - float32(borderwidth),
-		Y:      screen.N,
-		Width:  float32(borderwidth),
-		Height: float32(borderwidth),
-	}
-	bottomLeft = rl.Rectangle{
-		X:      screen.W,
-		Y:      screen.S - float32(borderwidth),
-		Width:  float32(borderwidth),
-		Height: float32(borderwidth),
-	}
-	bottomRight = rl.Rectangle{
-		X:      screen.E - float32(borderwidth),
-		Y:      screen.S - float32(borderwidth),
-		Width:  float32(borderwidth),
-		Height: float32(borderwidth),
 	}
 	camera = rl.Camera{
 		// -Z Forward / +Z Backwards
 		// -X Left / +X Right
 		// -Y Down / +Y Up
-		Position: rl.NewVector3(0.0, 25.0, 25.0),
+		Position: rl.NewVector3(0.0, 2, -10),
 		Target:   rl.NewVector3(0.0, 0.0, 0.0),
-		Up:       rl.NewVector3(0.0, 2.0, 0.0),
+		Up:       rl.NewVector3(0.0, 1.0, 0.0),
 		Fovy:     75}
 )
 
 func main() {
-	rl.SetConfigFlags(rl.FlagVsyncHint)
-	rl.InitWindow(screenWidth, screenHeight, "Window")
-
+	rl.SetConfigFlags(rl.FlagFullscreenMode)
+	rl.InitWindow(int32(rl.GetMonitorWidth(1)), int32(rl.GetMonitorHeight(1)), "Window")
 	rl.SetTargetFPS(60)
-	fmt.Println(rl.Vector3Distance(camera.Target, camera.Position))
+	rotateCamera(&camera, false)
+
+	originHex = loadHex()
 
 	for !rl.WindowShouldClose() {
 		cameraControl(&camera)
-		rl.BeginDrawing()
-
 		rl.ClearBackground(rl.RayWhite)
-
-		rl.BeginMode3D(camera)
-		if rl.IsKeyDown(rl.KeySpace) {
-			rl.DrawSphere(rl.Vector3Zero(), 1, rl.Black)
-		}
-		rl.DrawSphere(rl.NewVector3(0, 25, 0), 1, rl.Black)
-		rl.DrawGrid(10, 10)
-
-		rl.EndMode3D()
-		debugText(&camera)
-		rl.DrawPoly(rl.NewVector2(float32(rl.GetMouseX())-3, float32(rl.GetMouseY())), 2, cursor.floatrad, 135, cursor.color)
+		rl.BeginDrawing()
+		render3D()
+		render2D()
 		rl.EndDrawing()
 		rl.DisableCursor()
-
-		if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {
-			rl.SetMousePosition(rl.GetScreenWidth()-int(cursor.intrad), int(rl.GetMouseY()))
-		} else if rl.GetMouseX()-cursor.intrad <= 0 {
-			rl.SetMousePosition(0+int(cursor.intrad), int(rl.GetMouseY()))
-		}
-		if rl.GetMouseY()+cursor.intrad > int32(rl.GetScreenHeight()) {
-			rl.SetMousePosition(int(rl.GetMouseX()), rl.GetScreenHeight()-int(cursor.intrad))
-		} else if rl.GetMouseY()-cursor.intrad < 0 {
-			rl.SetMousePosition(int(rl.GetMouseX()), 0+int(cursor.intrad))
-		}
-
 	}
+	closeApp()
+}
 
+func closeApp() {
+	rl.UnloadModel(originHex.model)
 	rl.CloseWindow()
+}
+
+func render3D() {
+	rl.BeginMode3D(camera)
+	drawOriginHex()
+	drawHex(rl.NewVector3(1, 0, 1))
+	rl.DrawSphere(rl.NewVector3(hexRad, 0, hexRad), .1, rl.Black)
+	debugShapes()
+
+	rl.EndMode3D()
+}
+
+func render2D() {
+	debugText(&camera)
+	rl.DrawPoly(rl.NewVector2(float32(rl.GetMouseX())-3, float32(rl.GetMouseY())), 2, cursor.floatrad, 135, cursor.color)
+	if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {
+		rl.SetMousePosition(rl.GetScreenWidth()-int(cursor.intrad), int(rl.GetMouseY()))
+	} else if rl.GetMouseX()-cursor.intrad <= 0 {
+		rl.SetMousePosition(0+int(cursor.intrad), int(rl.GetMouseY()))
+	}
+	if rl.GetMouseY()+cursor.intrad > int32(rl.GetScreenHeight()) {
+		rl.SetMousePosition(int(rl.GetMouseX()), rl.GetScreenHeight()-int(cursor.intrad))
+	} else if rl.GetMouseY()-cursor.intrad < 0 {
+		rl.SetMousePosition(int(rl.GetMouseX()), 0+int(cursor.intrad))
+	}
 }
 
 func debugText(camera *rl.Camera) {
 	rl.DrawText("Pos X: "+fmt.Sprintf("%.2f", camera.Position.X)+", Y: "+fmt.Sprintf("%.2f", camera.Position.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Position.Z), 10, 10, 20, rl.Gray)
 	rl.DrawText("Target X: "+fmt.Sprintf("%.2f", camera.Target.X)+", Y: "+fmt.Sprintf("%.2f", camera.Target.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Target.Z), 10, 30, 20, rl.Gray)
 	rl.DrawText("Up X: "+fmt.Sprintf("%.2f", camera.Up.X)+", Y: "+fmt.Sprintf("%.2f", camera.Up.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Up.Z), 10, 50, 20, rl.Gray)
-	rl.DrawText("hAngle: "+fmt.Sprintf("%.2f", horizontalAngle)+", vAngle: "+fmt.Sprintf("%.2f", verticalAngle)+", Distance: "+fmt.Sprintf("%.2f", distance), 10, 70, 20, rl.Gray)
-	rl.DrawText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), int32(screen.E)-5-rl.MeasureText("FPS: "+fmt.Sprintf("%.2f", rl.GetFPS()), 20), 10, 20, rl.Gray)
-	rl.DrawText(fmt.Sprintf("%.2f", float32(horizontalDistance*math.Cos(horizontalAngle*rl.Deg2rad))), int32(screen.E)-5-rl.MeasureText(fmt.Sprintf("%.2f", float32(horizontalDistance*math.Cos(horizontalAngle*rl.Deg2rad))), 20), 90, 20, rl.Gray)
-	rl.DrawText(fmt.Sprintf("%.2f", float32(horizontalDistance*math.Sin(horizontalAngle*rl.Deg2rad))), int32(screen.E)-5-rl.MeasureText(fmt.Sprintf("%.2f", float32(horizontalDistance*math.Sin(horizontalAngle*rl.Deg2rad))), 20), 110, 20, rl.Gray)
-	rl.DrawText(fmt.Sprintf("%.2f", float32(distance*math.Sin(verticalAngle*rl.Deg2rad))), int32(screen.E)-5-rl.MeasureText(fmt.Sprintf("%.2f", float32(distance*math.Sin(verticalAngle*rl.Deg2rad))), 20), 130, 20, rl.Gray)
+	rl.DrawText("hAngle: "+fmt.Sprintf("%.2f", rotateAngle)+", vAngle: "+fmt.Sprintf("%.2f", verticalAngle)+", Distance: "+fmt.Sprintf("%.2f", rl.Vector3Distance(camera.Position, camera.Target)), 10, 70, 20, rl.Gray)
+}
 
+func debugShapes() {
+	rl.DrawGrid(100, 1)
+	//Center Marker
+	//rl.DrawCubeWires(rl.NewVector3(0, 0, 0), 2, 2, 1, rl.Black)
+	//Camera Target Marker
+	//rl.DrawSphere(camera.Target, .1, rl.Black)
+	//Z Axis
+	rl.DrawLine3D(rl.NewVector3(0, 0, -10), rl.NewVector3(0, 0, 10), rl.Green)
+	//Y Axis
+	rl.DrawLine3D(rl.NewVector3(0, -10, 0), rl.NewVector3(0, 10, 0), rl.Red)
+	//XAxis
+	rl.DrawLine3D(rl.NewVector3(-10, 0, 0), rl.NewVector3(10, 0, 0), rl.Blue)
 }
