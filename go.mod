@@ -1,4 +1,4 @@
-module HexEngine-Go
+module github.com/DevinAtoms/HexEngine
 
 go 1.17
 

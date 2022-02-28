@@ -1,7 +1,7 @@
-package main
+package hex
 
 import (
-	"fmt"
+	"github.com/DevinAtoms/HexEngine/HexMath"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -20,100 +20,51 @@ type (
 )
 
 const (
-	borderwidth  = int32(100)
-	panSpeed     = .1
+	//borderwidth = int32(100)
 	screenWidth  = int32(1600)
 	screenHeight = int32(900)
 )
 
-var (
-	originHex *HexTile
-	cursor    = mouseCursor{
-		floatrad: 3.0,
-		intrad:   3.0,
-		color:    rl.Black,
-	}
-	camera = rl.Camera{
-		// -Z Forward / +Z Backwards
-		// -X Left / +X Right
-		// -Y Down / +Y Up
-		Position: rl.NewVector3(0.0, 2, -10),
-		Target:   rl.NewVector3(0.0, 0.0, 0.0),
-		Up:       rl.NewVector3(0.0, 1.0, 0.0),
-		Fovy:     75}
-)
+var cursor = mouseCursor{
+	floatrad: 3.0,
+	intrad:   3.0,
+	color:    rl.Black,
+}
 
 func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
-	rl.SetTargetFPS(60)
-	rotateCamera(&camera, false)
 
-	OriginHex = *LoadHex()
+	rl.SetTargetFPS(60)
+
+	rotateCamera(&Camera, false)
+
+	loadAssets()
 
 	for !rl.WindowShouldClose() {
-		cameraControl(&camera)
-		rl.ClearBackground(rl.RayWhite)
-		rl.BeginDrawing()
-		render3D()
-		render2D()
-		rl.EndDrawing()
+		cameraControl(&Camera)
+
+		drawScreen()
+
 		rl.DisableCursor()
 	}
 	closeApp()
 }
 
 func closeApp() {
-	rl.UnloadModel(OriginHex.Model)
+	rl.UnloadModel(HexMath.OriginHex.Model)
 	rl.CloseWindow()
 }
 
-func render3D() {
-	tile := HexCoord{}
-	tile.Q = 1
-	tile.R = -1
-	tile.S = 0
-	c, _ := GetHexCoord(tile)
-	rl.BeginMode3D(camera)
-	//drawOriginHex()
-	Wireframe(rl.Vector3Zero(), Apothem)
-	Wireframe(c, Apothem)
-	//drawHex(hexCoords(rl.NewVector3(0, 0, 0)))
-
-	debugShapes()
-
-	rl.EndMode3D()
+func loadAssets() {
+	HexMath.OriginHex = *LoadOriginHex()
 }
 
-func render2D() {
-	debugText(&camera)
-	rl.DrawPoly(rl.NewVector2(float32(rl.GetMouseX())-3, float32(rl.GetMouseY())), 2, cursor.floatrad, 135, cursor.color)
-	if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {
-		rl.SetMousePosition(rl.GetScreenWidth()-int(cursor.intrad), int(rl.GetMouseY()))
-	} else if rl.GetMouseX()-cursor.intrad <= 0 {
-		rl.SetMousePosition(0+int(cursor.intrad), int(rl.GetMouseY()))
-	}
-	if rl.GetMouseY()+cursor.intrad > int32(rl.GetScreenHeight()) {
-		rl.SetMousePosition(int(rl.GetMouseX()), rl.GetScreenHeight()-int(cursor.intrad))
-	} else if rl.GetMouseY()-cursor.intrad < 0 {
-		rl.SetMousePosition(int(rl.GetMouseX()), 0+int(cursor.intrad))
-	}
-}
+func LoadOriginHex() *HexMath.HexTile {
 
-func debugText(camera *rl.Camera) {
-	rl.DrawText("Pos X: "+fmt.Sprintf("%.2f", camera.Position.X)+", Y: "+fmt.Sprintf("%.2f", camera.Position.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Position.Z), 10, 10, 20, rl.Gray)
-	rl.DrawText("Target X: "+fmt.Sprintf("%.2f", camera.Target.X)+", Y: "+fmt.Sprintf("%.2f", camera.Target.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Target.Z), 10, 30, 20, rl.Gray)
-}
+	tile := HexMath.HexTile{}
+	tile.Model = rl.LoadModel("assets/grass.obj")
+	tile.Points = HexMath.HexCorner3D(rl.Vector3Zero(), HexMath.Apothem)
+	tile.Coord = rl.NewVector2(0, 0)
 
-func debugShapes() {
-	rl.DrawGrid(100, 1)
-	//Center Marker
-	//rl.DrawCubeWires(rl.NewVector3(0, 0, 0), 2, 2, 1, rl.Black)
-	//Camera Target Marker
-	//rl.DrawSphere(camera.Target, .1, rl.Black)
-	//Z Axis
-	rl.DrawLine3D(rl.NewVector3(0, 0, -10), rl.NewVector3(0, 0, 10), rl.Green)
-	//Y Axis
-	rl.DrawLine3D(rl.NewVector3(0, -10, 0), rl.NewVector3(0, 10, 0), rl.Red)
-	//XAxis
-	rl.DrawLine3D(rl.NewVector3(-10, 0, 0), rl.NewVector3(10, 0, 0), rl.Blue)
+	return &tile
 }

@@ -1,9 +1,13 @@
-package main
+package hex
 
 import (
 	"math"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+const (
+	panSpeed = .1
 )
 
 var (
@@ -18,6 +22,14 @@ var (
 	panning       bool
 	rotating      bool
 	distance      = 5.0
+	Camera        = rl.Camera{
+		// -Z Forward / +Z Backwards
+		// -X Left / +X Right
+		// -Y Down / +Y Up
+		Position: rl.NewVector3(0.0, 2, -10),
+		Target:   rl.NewVector3(0.0, 0.0, 0.0),
+		Up:       rl.NewVector3(0.0, 1.0, 0.0),
+		Fovy:     75}
 )
 
 func rotateCamera(camera *rl.Camera3D, lock bool) {
@@ -149,13 +161,13 @@ func localMatrix(d *rl.Camera3D) (rl.Matrix, rl.Matrix) {
 	yaxis := rl.Vector3CrossProduct(xaxis, zaxis)
 	zaxis = rl.Vector3Negate(zaxis)
 
-	zoomxdot := rl.Vector3DotProduct(zoomX, camera.Position)
-	zoomydot := rl.Vector3DotProduct(zoomY, camera.Position)
-	zoomzdot := rl.Vector3DotProduct(zoomZ, camera.Position)
+	zoomxdot := rl.Vector3DotProduct(zoomX, Camera.Position)
+	zoomydot := rl.Vector3DotProduct(zoomY, Camera.Position)
+	zoomzdot := rl.Vector3DotProduct(zoomZ, Camera.Position)
 
-	xdot := rl.Vector3DotProduct(xaxis, camera.Position)
-	ydot := rl.Vector3DotProduct(yaxis, camera.Position)
-	zdot := rl.Vector3DotProduct(zaxis, camera.Position)
+	xdot := rl.Vector3DotProduct(xaxis, Camera.Position)
+	ydot := rl.Vector3DotProduct(yaxis, Camera.Position)
+	zdot := rl.Vector3DotProduct(zaxis, Camera.Position)
 
 	view := rl.Matrix{
 		M0:  xaxis.X,
