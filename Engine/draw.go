@@ -6,15 +6,27 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+type mouseCursor struct {
+	floatrad float32
+	intrad   int32
+	color    rl.Color
+}
+
+var cursor = mouseCursor{
+	floatrad: 3.0,
+	intrad:   3.0,
+	color:    rl.Black,
+}
+
 func drawScreen() {
 	rl.ClearBackground(rl.RayWhite)
 	rl.BeginDrawing()
-	render3D()
-	render2D()
+	Render3D()
+	Render2D()
 	rl.EndDrawing()
 }
 
-func render3D() {
+func Render3D() {
 	tile := HexMath.HexCoord{}
 	tile.Q = 1
 	tile.R = -1
@@ -31,7 +43,7 @@ func render3D() {
 	rl.EndMode3D()
 }
 
-func render2D() {
+func Render2D() {
 	debugText(&Camera)
 	rl.DrawPoly(rl.NewVector2(float32(rl.GetMouseX())-3, float32(rl.GetMouseY())), 2, cursor.floatrad, 135, cursor.color)
 	if rl.GetMouseX()+cursor.intrad > int32(rl.GetScreenWidth()) {

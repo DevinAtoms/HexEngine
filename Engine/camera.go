@@ -1,9 +1,8 @@
 package Engine
 
 import (
-	"math"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"math"
 )
 
 const (
@@ -32,7 +31,7 @@ var (
 		Fovy:     75}
 )
 
-func rotateCamera(camera *rl.Camera3D, lock bool) {
+func RotateCamera(camera *rl.Camera3D, lock bool) {
 
 	rightclick = rl.IsMouseButtonDown(1)
 	scrollwheel = float64(rl.GetMouseWheelMove())
@@ -60,10 +59,10 @@ func rotateCamera(camera *rl.Camera3D, lock bool) {
 
 }
 
-func cameraControl(camera *rl.Camera) {
-	rotateCamera(camera, false)
+func CameraControl(camera *rl.Camera) {
+	RotateCamera(camera, false)
 
-	look, _ := localMatrix(camera)
+	look, _ := LocalMatrix(camera)
 	v1 = rl.Vector3Transform(camera.Position, look)
 	v2 = rl.Vector3Transform(camera.Target, look)
 
@@ -147,7 +146,7 @@ func cameraControl(camera *rl.Camera) {
 
 }
 
-func localMatrix(d *rl.Camera3D) (rl.Matrix, rl.Matrix) {
+func LocalMatrix(d *rl.Camera3D) (rl.Matrix, rl.Matrix) {
 
 	target := rl.NewVector3(d.Target.X, d.Position.Y, d.Target.Z)
 

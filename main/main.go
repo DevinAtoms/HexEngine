@@ -1,23 +1,11 @@
-package Engine
+package main
 
 import (
 	"github.com/DevinAtoms/HexEngine/HexMath"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-type (
-	mouseCursor struct {
-		floatrad float32
-		intrad   int32
-		color    rl.Color
-	}
-	window struct {
-		N float32
-		S float32
-		E float32
-		W float32
-	}
-)
+type ()
 
 const (
 	//borderwidth = int32(100)
@@ -25,18 +13,12 @@ const (
 	screenHeight = int32(900)
 )
 
-var cursor = mouseCursor{
-	floatrad: 3.0,
-	intrad:   3.0,
-	color:    rl.Black,
-}
-
 func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 
 	rl.SetTargetFPS(60)
 
-	rotateCamera(&Camera, false)
+	RotateCamera(&Camera, false)
 
 	loadAssets()
 
