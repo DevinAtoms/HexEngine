@@ -72,8 +72,9 @@ func closeApp() {
 func render3D() {
 	rl.BeginMode3D(camera)
 	drawOriginHex()
-	drawHex(rl.NewVector3(1, 0, 1))
-	rl.DrawSphere(rl.NewVector3(hexRad, 0, hexRad), .1, rl.Black)
+	wireframe(originHex)
+	drawHex(hexCoords(rl.NewVector3(0, 0, 0)))
+
 	debugShapes()
 
 	rl.EndMode3D()
@@ -97,7 +98,7 @@ func render2D() {
 func debugText(camera *rl.Camera) {
 	rl.DrawText("Pos X: "+fmt.Sprintf("%.2f", camera.Position.X)+", Y: "+fmt.Sprintf("%.2f", camera.Position.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Position.Z), 10, 10, 20, rl.Gray)
 	rl.DrawText("Target X: "+fmt.Sprintf("%.2f", camera.Target.X)+", Y: "+fmt.Sprintf("%.2f", camera.Target.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Target.Z), 10, 30, 20, rl.Gray)
-	rl.DrawText("Up X: "+fmt.Sprintf("%.2f", camera.Up.X)+", Y: "+fmt.Sprintf("%.2f", camera.Up.Y)+", Z: "+fmt.Sprintf("%.2f", camera.Up.Z), 10, 50, 20, rl.Gray)
+	rl.DrawText("Up X: "+fmt.Sprintf("%.2f", hexCoords(rl.Vector3Zero()).X)+", Y: "+fmt.Sprintf("%.2f", hexCoords(rl.Vector3Zero()).Y)+", Z: "+fmt.Sprintf("%.2f", hexCoords(rl.Vector3Zero()).Z), 10, 50, 20, rl.Gray)
 	rl.DrawText("hAngle: "+fmt.Sprintf("%.2f", rotateAngle)+", vAngle: "+fmt.Sprintf("%.2f", verticalAngle)+", Distance: "+fmt.Sprintf("%.2f", rl.Vector3Distance(camera.Position, camera.Target)), 10, 70, 20, rl.Gray)
 }
 

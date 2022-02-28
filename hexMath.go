@@ -6,17 +6,25 @@ import (
 	"github.com/gen2brain/raylib-go/raylib"
 )
 
-const hexRad = 0.5774
+const apothem = 0.433
+const hexRad = .5
 
 type hexTile struct {
 	model  rl.Model
+	coords hexCoord
 	points [7]rl.Vector3
 	hexMat rl.Matrix
 }
 
+type hexCoord struct {
+	Q float32
+	R float32
+	S float32
+}
+
 func loadHex() *hexTile {
 	tile := hexTile{
-		model:  rl.LoadModel("assets/grass.obj"),
+		model:  rl.LoadModel("assets/newhex.obj"),
 		hexMat: rl.Matrix{},
 	}
 	return &tile
@@ -38,9 +46,14 @@ func hexCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
 
 func drawOriginHex() {
 	tile := originHex
-	tile.points = hexCorner3D(rl.Vector3Zero(), 0.5774)
-	corners := tile.points
+	tile.points = hexCorner3D(rl.Vector3Zero(), 0.5)
 	rl.DrawModelEx(tile.model, rl.Vector3Zero(), rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
+}
+
+func wireframe(tile *hexTile) {
+
+	corners := tile.points
+
 	for i := range tile.points {
 		if i < 5 {
 			rl.DrawLine3D(corners[i], corners[i+1], rl.Black)
@@ -77,51 +90,40 @@ func drawOriginHex() {
 
 func drawHex(loc rl.Vector3) {
 	tile := originHex
-	hexX := float32(math.Sqrt(3) * hexRad)
-	translate := rl.NewVector3(hexX, 0, 0)
+	tile.points = hexCorner3D(loc, 0.5)
+	wireframe(tile)
+	rl.DrawModelEx(tile.model, loc, rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
+}
 
-	//angleRadCos := float32(math.Cos(rl.Deg2rad))
-	//angleRadSin := float32(math.Sin(rl.Deg2rad))
-	mat1 := rl.MatrixTranslate(translate.X, translate.Y, translate.Z)
-	mats := make([]rl.Matrix, 1)
-	mats[0] = mat1
-	rl.DrawMeshInstanced(*originHex.model.Meshes, *originHex.model.Materials, mats, 1)
+func hexCoords(coord rl.Vector3) rl.Vector3 {
 
-	center := rl.Vector3Transform(loc, mat1)
+	dist := float32(hexRad - apothem)
 
-	tile.points = hexCorner3D(center, hexRad)
-	corners := tile.points
-	for i := range tile.points {
-		if i < 5 {
-			rl.DrawLine3D(corners[i], corners[i+1], rl.Black)
-			rl.DrawLine3D(
-				rl.NewVector3(corners[i].X, corners[i].Y+.2, corners[i].Z),
-				rl.NewVector3(corners[i+1].X, corners[i+1].Y+.2, corners[i+1].Z), rl.Black)
-			rl.DrawLine3D(
-				rl.NewVector3(corners[i].X, corners[i].Y+.1, corners[i].Z),
-				rl.NewVector3(corners[i+1].X, corners[i+1].Y+.1, corners[i+1].Z), rl.Black)
-			rl.DrawLine3D(
-				corners[i],
-				rl.NewVector3(corners[i].X, corners[i].Y+.2, corners[i].Z), rl.Black)
-			rl.DrawLine3D(
-				corners[i],
-				rl.NewVector3(corners[i].X, corners[i].Y+.1, corners[i].Z), rl.Black)
-			rl.DrawLine3D(
-				corners[i+1],
-				rl.NewVector3(corners[i+1].X, corners[i+1].Y+.2, corners[i+1].Z), rl.Black)
-			rl.DrawLine3D(
-				corners[i+1],
-				rl.NewVector3(corners[i+1].X, corners[i+1].Y+.1, corners[i+1].Z), rl.Black)
+	angleDeg := 30.0
+	angleRadCos := float32(math.Cos(rl.Deg2rad * angleDeg))
+	angleRadSin := float32(math.Sin(rl.Deg2rad * angleDeg))
+	R := rl.NewVector3(angleRadSin-dist, 0, angleRadCos-dist-(hexRad/10))
 
-		} else if i == 5 {
-			rl.DrawLine3D(corners[5], corners[0], rl.Black)
-			rl.DrawLine3D(
-				rl.NewVector3(corners[5].X, corners[5].Y+.2, corners[5].Z),
-				rl.NewVector3(corners[0].X, corners[0].Y+.2, corners[0].Z), rl.Black)
-			rl.DrawLine3D(
-				corners[5],
-				rl.NewVector3(corners[5].X, corners[5].Y+.2, corners[5].Z), rl.Black)
-		}
-	}
+	//cubeQ := apothem*2
+	//cubeR :=
+	//
+	//gridQ := coord.X
+	//gridR := coord.Y
+	//gridS := coord.Z
 
+	// Q, -R, +S
+	rl.NewVector3(apothem, 0, .75)
+	// Q, +R, -S
+	rl.NewVector3(-apothem, 0, -.75)
+
+	// +Q, R, -S
+	rl.NewVector3(apothem*2, 0, 0)
+	// -Q, R, +S
+	rl.NewVector3(-apothem*2, 0, 0)
+
+	// -Q, +R, S
+	rl.NewVector3(apothem, 0, -.75)
+	// +Q, -R, S
+	rl.NewVector3(-apothem, 0, .75)
+	return R
 }
