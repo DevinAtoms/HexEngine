@@ -10,7 +10,7 @@ import (
 func TestCoords(t *testing.T) {
 	coords := NewCoords(1, -1, 0)
 	hex, err := GetHexCoord(coords)
-	if hex == rl.Vector3Zero() || err == nil {
+	if hex == rl.Vector3Zero() || err != nil {
 		t.Fatalf("%v", err)
 	}
 }

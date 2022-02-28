@@ -53,15 +53,11 @@ func debugText(camera *rl.Camera) {
 
 func debugShapes() {
 	rl.DrawGrid(100, 1)
-	//Center Marker
-	//rl.DrawCubeWires(rl.NewVector3(0, 0, 0), 2, 2, 1, rl.Black)
-	//Camera Target Marker
-	//rl.DrawSphere(camera.Target, .1, rl.Black)
 	//Z Axis
 	rl.DrawLine3D(rl.NewVector3(0, 0, -10), rl.NewVector3(0, 0, 10), rl.Green)
 	//Y Axis
 	rl.DrawLine3D(rl.NewVector3(0, -10, 0), rl.NewVector3(0, 10, 0), rl.Red)
-	//XAxis
+	//X Axis
 	rl.DrawLine3D(rl.NewVector3(-10, 0, 0), rl.NewVector3(10, 0, 0), rl.Blue)
 }
 

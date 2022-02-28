@@ -1,4 +1,4 @@
-module github.com/DevinAtoms/HexEngine/HexMath
+module HexMath
 
 go 1.17
 
