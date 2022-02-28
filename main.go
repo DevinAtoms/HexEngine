@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -28,7 +27,7 @@ const (
 )
 
 var (
-	originHex *hexTile
+	originHex *HexTile
 	cursor    = mouseCursor{
 		floatrad: 3.0,
 		intrad:   3.0,
@@ -50,7 +49,7 @@ func main() {
 	rl.SetTargetFPS(60)
 	rotateCamera(&camera, false)
 
-	originHex = loadHex()
+	OriginHex = *LoadHex()
 
 	for !rl.WindowShouldClose() {
 		cameraControl(&camera)
@@ -65,15 +64,20 @@ func main() {
 }
 
 func closeApp() {
-	rl.UnloadModel(originHex.model)
+	rl.UnloadModel(OriginHex.Model)
 	rl.CloseWindow()
 }
 
 func render3D() {
+	tile := HexCoord{}
+	tile.Q = 1
+	tile.R = -1
+	tile.S = 0
+	c, _ := GetHexCoord(tile)
 	rl.BeginMode3D(camera)
 	//drawOriginHex()
-	wireframe(rl.Vector3Zero(), apothem)
-	wireframe(getHexCoord(newCoords(1, -1, 0)), apothem)
+	Wireframe(rl.Vector3Zero(), Apothem)
+	Wireframe(c, Apothem)
 	//drawHex(hexCoords(rl.NewVector3(0, 0, 0)))
 
 	debugShapes()

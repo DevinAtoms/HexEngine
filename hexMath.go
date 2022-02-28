@@ -1,38 +1,40 @@
 package main
 
 import (
-	"math"
-
+	"errors"
 	"github.com/gen2brain/raylib-go/raylib"
+	"math"
 )
 
 const (
-	apothem = 0.5
-	hexRad  = 0.5774
+	Apothem = 0.5
+	HexRad  = 0.5774
 )
 
-type hexTile struct {
-	model  rl.Model
-	coords hexCoord
-	points [7]rl.Vector3
-	hexMat rl.Matrix
+type HexTile struct {
+	Model  rl.Model
+	Coords HexCoord
+	Points [7]rl.Vector3
+	HexMat rl.Matrix
 }
 
-type hexCoord struct {
+type HexCoord struct {
 	Q float32
 	R float32
 	S float32
 }
 
-func loadHex() *hexTile {
-	tile := hexTile{
-		model:  rl.LoadModel("assets/grass.obj"),
-		hexMat: rl.Matrix{},
+var OriginHex HexTile
+
+func LoadHex() *HexTile {
+	tile := HexTile{
+		Model:  rl.LoadModel("assets/grass.obj"),
+		HexMat: rl.Matrix{},
 	}
 	return &tile
 }
 
-func hexCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
+func HexCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
 	var corners [7]rl.Vector3
 	points := corners[0:6]
 	for i := range points {
@@ -46,14 +48,13 @@ func hexCorner3D(center rl.Vector3, size float32) [7]rl.Vector3 {
 	return corners
 }
 
-func drawOriginHex() {
-	tile := originHex
-	tile.points = hexCorner3D(rl.Vector3Zero(), hexRad)
-	rl.DrawModelEx(tile.model, rl.Vector3Zero(), rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
+func DrawOriginHex(origin *HexTile) {
+	origin.Points = HexCorner3D(rl.Vector3Zero(), HexRad)
+	rl.DrawModelEx(origin.Model, rl.Vector3Zero(), rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
 }
 
-func wireframe(center rl.Vector3, size float32) {
-	corners := hexCorner3D(center, size)
+func Wireframe(center rl.Vector3, size float32) {
+	corners := HexCorner3D(center, size)
 	for i := range corners {
 		if i < 5 {
 			rl.DrawLine3D(corners[i], corners[i+1], rl.Black)
@@ -88,14 +89,12 @@ func wireframe(center rl.Vector3, size float32) {
 	}
 }
 
-func drawHex(loc rl.Vector3) {
-	tile := originHex
-	tile.points = hexCorner3D(loc, hexRad)
-
-	rl.DrawModelEx(tile.model, loc, rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
+func DrawHex(loc rl.Vector3, tile HexTile) {
+	tile.Points = HexCorner3D(loc, HexRad)
+	rl.DrawModelEx(tile.Model, loc, rl.NewVector3(0, 1, 0), 0, rl.NewVector3(1, 1, 1), rl.Gray)
 }
 
-func getHexCoord(h hexCoord) rl.Vector3 {
+func GetHexCoord(h HexCoord) (rl.Vector3, error) {
 	var dir int32
 	v := rl.Vector3{}
 
@@ -119,15 +118,17 @@ func getHexCoord(h hexCoord) rl.Vector3 {
 				dir = 2
 			}
 		}
+	} else {
+		return rl.Vector3Zero(), errors.New("Q+R+S !=0")
 	}
 
 	angleDeg := float64(dir * 60)
 	angleRadCos := float32(math.Cos(rl.Deg2rad * angleDeg))
 	angleRadSin := float32(math.Sin(rl.Deg2rad * angleDeg))
 	loc := rl.Vector3Multiply(rl.NewVector3(v.X+.433*angleRadCos, 0, v.Z+.433*angleRadSin), 2.0)
-	return loc
+	return loc, nil
 }
 
-func newCoords(Q float32, R float32, S float32) hexCoord {
-	return hexCoord{Q: Q, R: R, S: S}
+func NewCoords(Q float32, R float32, S float32) HexCoord {
+	return HexCoord{Q: Q, R: R, S: S}
 }
