@@ -5,8 +5,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-type ()
-
 const (
 	//borderwidth = int32(100)
 	screenWidth  = int32(1600)
@@ -23,9 +21,9 @@ func main() {
 	loadAssets()
 
 	for !rl.WindowShouldClose() {
-		cameraControl(&Camera)
+		CameraControl(&Camera)
 
-		drawScreen()
+		DrawScreen()
 
 		rl.DisableCursor()
 	}

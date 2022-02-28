@@ -18,7 +18,7 @@ var cursor = mouseCursor{
 	color:    rl.Black,
 }
 
-func drawScreen() {
+func DrawScreen() {
 	rl.ClearBackground(rl.RayWhite)
 	rl.BeginDrawing()
 	Render3D()
