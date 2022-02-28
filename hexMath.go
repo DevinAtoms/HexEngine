@@ -97,24 +97,20 @@ func drawHex(loc rl.Vector3) {
 
 func hexCoords(coord rl.Vector3) rl.Vector3 {
 
-	dist := float32(hexRad - apothem)
-
-	angleDeg := 30.0
-	angleRadCos := float32(math.Cos(rl.Deg2rad * angleDeg))
-	angleRadSin := float32(math.Sin(rl.Deg2rad * angleDeg))
-	R := rl.NewVector3(angleRadSin-dist, 0, angleRadCos-dist-(hexRad/10))
-
+	dist := float32(math.Sqrt(3) * apothem)
+	//placeholder
+	coords := rl.Vector3One()
 	//cubeQ := apothem*2
 	//cubeR :=
-	//
+
 	//gridQ := coord.X
 	//gridR := coord.Y
 	//gridS := coord.Z
 
 	// Q, -R, +S
-	rl.NewVector3(apothem, 0, .75)
+	rl.NewVector3(apothem, 0, dist)
 	// Q, +R, -S
-	rl.NewVector3(-apothem, 0, -.75)
+	rl.NewVector3(-apothem, 0, -dist)
 
 	// +Q, R, -S
 	rl.NewVector3(apothem*2, 0, 0)
@@ -122,8 +118,8 @@ func hexCoords(coord rl.Vector3) rl.Vector3 {
 	rl.NewVector3(-apothem*2, 0, 0)
 
 	// -Q, +R, S
-	rl.NewVector3(apothem, 0, -.75)
+	rl.NewVector3(apothem, 0, -dist)
 	// +Q, -R, S
-	rl.NewVector3(-apothem, 0, .75)
-	return R
+	rl.NewVector3(-apothem, 0, dist)
+	return coords
 }
