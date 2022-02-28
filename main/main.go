@@ -1,6 +1,7 @@
 package main
 
 import (
+	. "github.com/DevinAtoms/HexEngine/Engine"
 	"github.com/DevinAtoms/HexEngine/HexMath"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )

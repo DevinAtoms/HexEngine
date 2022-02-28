@@ -1,4 +1,4 @@
-package Engine
+package engine
 
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
